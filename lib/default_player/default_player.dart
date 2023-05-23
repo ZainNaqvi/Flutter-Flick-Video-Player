@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter_application_2/utils/mock_data.dart';
 import 'package:flick_video_player/flick_video_player.dart';
@@ -74,29 +75,52 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        VisibilityDetector(
-          key: ObjectKey(flickManager),
-          onVisibilityChanged: (visibility) {
-            if (visibility.visibleFraction == 0 && this.mounted) {
-              flickManager.flickControlManager?.autoPause();
-            } else if (visibility.visibleFraction == 1) {
-              flickManager.flickControlManager?.autoResume();
-            }
-          },
-          child: FlickVideoPlayer(
-            flickManager: flickManager,
-            flickVideoWithControls: FlickVideoWithControls(
-              videoFit: BoxFit.contain,
-              closedCaptionTextStyle: TextStyle(fontSize: 8),
-              controls: FlickPortraitControls(
-                iconSize: 30,
-                progressBarSettings: FlickProgressBarSettings(
-                  height: 5,
-                  handleRadius: 8,
+        Stack(
+          children: [
+            VisibilityDetector(
+              key: ObjectKey(flickManager),
+              onVisibilityChanged: (visibility) {
+                if (visibility.visibleFraction == 0 && mounted) {
+                  flickManager.flickControlManager?.autoPause();
+                } else if (visibility.visibleFraction == 1) {
+                  flickManager.flickControlManager?.autoResume();
+                }
+              },
+              child: FlickVideoPlayer(
+                flickManager: flickManager,
+                flickVideoWithControls: FlickVideoWithControls(
+                  videoFit: BoxFit.contain,
+                  closedCaptionTextStyle: const TextStyle(fontSize: 8),
+                  controls: FlickPortraitControls(
+                    iconSize: 30,
+                    progressBarSettings: FlickProgressBarSettings(
+                      height: 5,
+                      handleRadius: 8,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.transparent,
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.6),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
