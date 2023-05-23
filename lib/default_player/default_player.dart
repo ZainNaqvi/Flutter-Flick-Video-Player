@@ -1,19 +1,16 @@
-import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter_application_2/utils/mock_data.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:video_player/video_player.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+
+import 'package:flutter_application_2/utils/mock_data.dart';
+
 import '../animation_player/data_manager.dart';
 
 class DefaultPlayer extends StatefulWidget {
-  DefaultPlayer({Key? key}) : super(key: key);
+  const DefaultPlayer({Key? key}) : super(key: key);
 
   @override
   _DefaultPlayerState createState() => _DefaultPlayerState();
@@ -21,10 +18,11 @@ class DefaultPlayer extends StatefulWidget {
 
 class _DefaultPlayerState extends State<DefaultPlayer> {
   int selectedIndex = 0;
+  bool _isSwitched = false;
   late FlickManager flickManager;
   late AnimationPlayerDataManager dataManager;
   List items = mockData['items'];
-  bool _pauseOnTap = true;
+  final bool _pauseOnTap = true;
   double playBackSpeed = 1.0;
   @override
   void initState() {
@@ -40,30 +38,6 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
     dataManager = AnimationPlayerDataManager(flickManager, items);
   }
 
-  ///If you have subtitle assets
-
-  // Future<ClosedCaptionFile> _loadCaptions() async {
-  //   final String fileContents = await DefaultAssetBundle.of(context)
-  //       .loadString('images/bumble_bee_captions.srt');
-  //   flickManager.flickControlManager!.toggleSubtitle();
-  //   return SubRipCaptionFile(fileContents);
-  // }
-
-  ///If you have subtitle urls
-
-  // Future<ClosedCaptionFile> _loadCaptions() async {
-  //   final url = Uri.parse('SUBTITLE URL LINK');
-  //   try {
-  //     final data = await http.get(url);
-  //     final srtContent = data.body.toString();
-  //     print(srtContent);
-  //     return SubRipCaptionFile(srtContent);
-  //   } catch (e) {
-  //     print('Failed to get subtitles for ${e}');
-  //     return SubRipCaptionFile('');
-  //   }
-  //}
-
   @override
   void dispose() {
     flickManager.dispose();
@@ -76,6 +50,7 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
+          clipBehavior: Clip.none,
           children: [
             VisibilityDetector(
               key: ObjectKey(flickManager),
@@ -101,25 +76,28 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
                 ),
               ),
             ),
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.transparent,
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.6),
-                      ],
+            _isSwitched == true
+                ? Positioned.fill(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.transparent,
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.6),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox(),
           ],
         ),
         Padding(
@@ -147,6 +125,13 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
                       fontSize: 24,
                     ),
                   ),
+                  Switch(
+                      value: _isSwitched,
+                      onChanged: (value) {
+                        setState(() {
+                          _isSwitched = value;
+                        });
+                      }),
                   OutlinedButton(
                     style: ButtonStyle(
                       foregroundColor:
