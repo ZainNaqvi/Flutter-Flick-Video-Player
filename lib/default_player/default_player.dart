@@ -64,6 +64,7 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
               child: FlickVideoPlayer(
                 flickManager: flickManager,
                 flickVideoWithControls: FlickVideoWithControls(
+                  sensorship: _isSwitched,
                   videoFit: BoxFit.contain,
                   closedCaptionTextStyle: const TextStyle(fontSize: 8),
                   controls: FlickPortraitControls(
@@ -76,28 +77,6 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
                 ),
               ),
             ),
-            _isSwitched == true
-                ? Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.transparent,
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.6),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : const SizedBox(),
           ],
         ),
         Padding(
